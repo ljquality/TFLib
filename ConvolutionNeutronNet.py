@@ -5,9 +5,9 @@ import numpy as np
 
 class CNNNetLayer:
 
-    def __init__(self, input_node_size, output_node_size):
+    def __init__(self, input_node_size, output_node_size=None):
         self.filter = None
-        self.strides = None
+        self.strides = [1, 1, 1, 1]
         self.padding = 'SAME'
         self.pooling_ksize = [1, 2, 2, 1]
         self.pooling_strides = [1, 2, 2, 1]
@@ -15,6 +15,7 @@ class CNNNetLayer:
         #self.bias = tf.Variable(tf.zeros[output_node_size])
         self.input_node_size = input_node_size
         self.output_node_size = output_node_size
+        self.if_pooling = True
         self.input_data = None
         self.output_data = None
 
@@ -35,11 +36,26 @@ class CNNNetLayer:
     def set_padding(self, padding):
         self.padding = padding
 
+    def set_pooling_ksize(self, ksize):
+        self.pooling_ksize = ksize
+
+    def set_pooling_strides(self, pooling_strides):
+        self.pooling_strides = pooling_strides
+
+    def set_if_pooling(self, ip):
+        self.if_pooling = ip
+
     def pooling(self):
         self.output_data = tf.nn.max_pool(self.output_data, self.pooling_ksize, self.pooling_strides, self.pooling_padding)
 
     def convolution_calculate(self):
         self.output_data = tf.nn.relu(tf.nn.conv2d(self.input_data, self.filter, self.strides, self.padding))
+
+    def calculate(self):
+        self.convolution_calculate()
+        if self.if_pooling:
+            self.pooling()
+        return self.output_data
 
 
 class NetLayer:

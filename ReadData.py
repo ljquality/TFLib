@@ -7,7 +7,9 @@ import os
 import struct
 import copy
 
+
 class Data:
+
     @staticmethod
     def read_train_data():
         train_file_name = './data/train_file.tfrecords'
@@ -45,38 +47,38 @@ class Data:
         f.close()
         f_label.close()
 
+    def __init__(self, dp):
+        self.data_path = dp
+        self.sess = tf.Session()
+        feature = {
+            'train/image': tf.FixedLenFeature([], tf.string),
+            'train/label': tf.FixedLenFeature([], tf.int64)
+        }
+        filename_queue = tf.train.string_input_producer([self.data_path], num_epochs=1)
+        reader = tf.TFRecordReader()
+        _, serialized_example = reader.read(filename_queue)
 
-with tf.Session() as sess:
-    data_path = './data/train_file.tfrecords'
-    feature = {
-        'train/image': tf.FixedLenFeature([], tf.string),
-        'train/label': tf.FixedLenFeature([], tf.int64)
-    }
-    filename_queue = tf.train.string_input_producer([data_path], num_epochs=1)
-    print 'begin read'
-    reader = tf.TFRecordReader()
-    _, serialized_example = reader.read(filename_queue)
+        features = tf.parse_single_example(serialized_example, features=feature)
+        image = tf.decode_raw(features['train/image'], tf.uint8)
+        self.label = tf.cast(features['train/label'], tf.int32)
+        self.image = tf.reshape(image, [28, 28])
+        #images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
+        init_op = tf.initialize_all_variables()
+        self.sess.run(init_op)
+        self.coord = tf.train.Coordinator()
+        self.threads = tf.train.start_queue_runners(coord=self.coord, sess=self.sess)
 
-    features = tf.parse_single_example(serialized_example, features=feature)
+    def read_a_record(self):
+        return self.sess.run([self.image, self.label])
 
-    print 'decode'
-    image = tf.decode_raw(features['train/image'], tf.uint8)
+    def close(self):
+        self.coord.request_stop()
+        self.coord.join(self.threads)
+        self.sess.close()
 
-    label = tf.cast(features['train/label'], tf.int32)
-
-    image = tf.reshape(image, [28, 28])
-
-    images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
-    print 'init'
-    init_op = tf.initialize_all_variables()
-    sess.run(init_op)
-
-
-    coord = tf.train.Coordinator()
-    threads = tf.train.start_queue_runners(coord=coord)
-    print 'run images'
-    img = sess.run(images)
-    print img
-    coord.request_stop()
-    coord.join(threads)
-    sess.close()
+t = [0]*10
+t[2] = 1
+t = tf.reshape(t, [1, 1, 1, 10])
+sess = tf.Session()
+print sess.run(t)
+sess.close()
