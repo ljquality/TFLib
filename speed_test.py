@@ -4,20 +4,25 @@ import tensorflow as tf
 import time
 
 def output_reshape(n):
-    output = [0.]*10
-    output[n] = 1.
+    l = len(n)
+    output = [0.]*10*n
     output = tf.reshape(output, [300, 1, 1, 10])
+    for i in range(l):
+        output[i][0][0][n[i]] = 1.
     return output
 
 def input_reshape(mat):
-    return tf.reshape(mat, [300, 28, 28, 1])
+    l = len(n)
+    return tf.reshape(mat, [l, 28, 28, 1])
 
 def output_to_num(output):
-    index = 0
-    for i in range(1, 10):
-        if output[0][0][0][index] < output[0][0][0][i]:
-            index = i
-    return index
+    l = len(output)
+    index = [0]*l
+    for case in range(l):
+        for i in range(1, 10):
+            if output[case][0][0][index[case]] < output[case][0][0][i]:
+                index[case] = i
+        return index
 
 layer1 = cnn.CNNNetLayer([300, 28, 28, 1])
 layer1.set_filter([2, 2, 1, 6])
