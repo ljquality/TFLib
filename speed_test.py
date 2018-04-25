@@ -24,29 +24,29 @@ def output_to_num(output):
                 index[case] = i
         return index
 
-layer1 = cnn.CNNNetLayer([300, 28, 28, 1])
+layer1 = cnn.CNNNetLayer([3000, 28, 28, 1])
 layer1.set_filter([2, 2, 1, 6])
 
-layer2 = cnn.CNNNetLayer([300, 14, 14, 6])
+layer2 = cnn.CNNNetLayer([3000, 14, 14, 6])
 layer2.set_filter([2, 2, 6, 16])
 
 
-layer3 = cnn.CNNNetLayer([300, 7, 7, 16])
+layer3 = cnn.CNNNetLayer([3000, 7, 7, 16])
 layer3.set_filter([2, 2, 16, 20])
 
 
-layer4 = cnn.CNNNetLayer([300, 4, 4, 20])
+layer4 = cnn.CNNNetLayer([3000, 4, 4, 20])
 layer4.set_filter([3, 3, 20, 120])
 layer4.set_padding('VALID')
 layer4.set_if_pooling(False)
 
 
-layer5 = cnn.CNNNetLayer([300, 1, 1, 120])
+layer5 = cnn.CNNNetLayer([3000, 1, 1, 120])
 layer5.set_filter([1, 1, 120, 84])
 layer5.set_padding('VALID')
 layer5.set_if_pooling(False)
 
-layer6 = cnn.CNNNetLayer([300, 1, 1, 84])
+layer6 = cnn.CNNNetLayer([3000, 1, 1, 84])
 layer6.set_filter([1, 1, 84, 10])
 layer6.set_padding('VALID')
 layer6.set_if_pooling(False)
@@ -77,7 +77,7 @@ loss = tf.div(loss, 300)
 
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
-sess = tf.Session(config=tf.ConfigProto(device_count={'cpu':8}))
+sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
 for i in range(100):
