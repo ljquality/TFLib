@@ -1,16 +1,16 @@
 import ConvolutionNeutronNet as cnn
 import ReadData as rd
 import tensorflow as tf
-
+import time
 
 def output_reshape(n):
     output = [0.]*10
     output[n] = 1.
-    output = tf.reshape(output, [1, 1, 1, 10])
+    output = tf.reshape(output, [300, 1, 1, 10])
     return output
 
 def input_reshape(mat):
-    return tf.reshape(mat, [1, 28, 28, 1])
+    return tf.reshape(mat, [300, 28, 28, 1])
 
 def output_to_num(output):
     index = 0
@@ -19,29 +19,29 @@ def output_to_num(output):
             index = i
     return index
 
-layer1 = cnn.CNNNetLayer([1, 28, 28, 1])
+layer1 = cnn.CNNNetLayer([300, 28, 28, 1])
 layer1.set_filter([2, 2, 1, 6])
 
-layer2 = cnn.CNNNetLayer([1, 14, 14, 6])
+layer2 = cnn.CNNNetLayer([300, 14, 14, 6])
 layer2.set_filter([2, 2, 6, 16])
 
 
-layer3 = cnn.CNNNetLayer([1, 7, 7, 16])
+layer3 = cnn.CNNNetLayer([300, 7, 7, 16])
 layer3.set_filter([2, 2, 16, 20])
 
 
-layer4 = cnn.CNNNetLayer([1, 4, 4, 20])
+layer4 = cnn.CNNNetLayer([300, 4, 4, 20])
 layer4.set_filter([3, 3, 20, 120])
 layer4.set_padding('VALID')
 layer4.set_if_pooling(False)
 
 
-layer5 = cnn.CNNNetLayer([1, 1, 1, 120])
+layer5 = cnn.CNNNetLayer([300, 1, 1, 120])
 layer5.set_filter([1, 1, 120, 84])
 layer5.set_padding('VALID')
 layer5.set_if_pooling(False)
 
-layer6 = cnn.CNNNetLayer([1, 1, 1, 84])
+layer6 = cnn.CNNNetLayer([300, 1, 1, 84])
 layer6.set_filter([1, 1, 84, 10])
 layer6.set_padding('VALID')
 layer6.set_if_pooling(False)
@@ -64,29 +64,30 @@ my_rd.close()
 
 print('read data over')
 loss = 0.
-for i in range(300):
-    my_cnn.load_data(input_reshape(my_data[i][0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
-    my_cnn.calculate()
-    loss = tf.add(loss, my_cnn.get_error_benchmark())
+#for i in range(300):
+my_cnn.load_data(input_reshape(my_data[0:300][0]))
+my_cnn.load_true_output_data(output_reshape(my_data[0:300][1]))
+my_cnn.calculate()
+loss = tf.add(loss, my_cnn.get_error_benchmark())
 loss = tf.div(loss, 300)
 
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
-sess = tf.Session()
+sess = tf.Session(config=tf.ConfigProto(device_count={'cpu':8}))
 init = tf.initialize_all_variables()
 sess.run(init)
-for i in range(30):
+for i in range(100):
+    pre = time.time()
     _, curloss = sess.run([train_step, loss])
     print(curloss)
+    later = time.time()
+    print (later - pre)
 
-saver = tf.train.Saver()
-saver.save(sess, 'variable_save')
 
-for i in range(300):
-    my_cnn.load_data(input_reshape(my_data[i][0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
-    result = my_cnn.calculate()
-    print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
+#for i in range(300):
+#    my_cnn.load_data(input_reshape(my_data[i][0]))
+#    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
+#    result = my_cnn.calculate()
+#    print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
 
 sess.close()

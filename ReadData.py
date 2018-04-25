@@ -62,6 +62,8 @@ class Data:
         image = tf.decode_raw(features['train/image'], tf.uint8)
         self.label = tf.cast(features['train/label'], tf.int32)
         self.image = tf.reshape(image, [28, 28])
+        self.image = tf.to_float(self.image)
+        self.image = tf.sub(tf.div(self.image, 255.), 0.5)
         #images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
         init_op = tf.initialize_all_variables()
         self.sess.run(init_op)
@@ -70,15 +72,11 @@ class Data:
 
     def read_a_record(self):
         return self.sess.run([self.image, self.label])
-
+    
+    def read_records(self, n):
+        images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
     def close(self):
         self.coord.request_stop()
         self.coord.join(self.threads)
         self.sess.close()
 
-t = [0]*10
-t[2] = 1
-t = tf.reshape(t, [1, 1, 1, 10])
-sess = tf.Session()
-print sess.run(t)
-sess.close()

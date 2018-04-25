@@ -65,8 +65,8 @@ my_rd.close()
 print('read data over')
 loss = 0.
 for i in range(300):
-    my_cnn.load_data(input_reshape(my_data[i][0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
+    my_cnn.load_data(input_reshape(my_data[i+300][0]))
+    my_cnn.load_true_output_data(output_reshape(my_data[i+300][1]))
     my_cnn.calculate()
     loss = tf.add(loss, my_cnn.get_error_benchmark())
 loss = tf.div(loss, 300)
@@ -74,19 +74,19 @@ loss = tf.div(loss, 300)
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
 sess = tf.Session()
-init = tf.initialize_all_variables()
-sess.run(init)
-for i in range(30):
+saver = tf.train.Saver()
+saver.restore(sess, 'variable_save')
+
+for i in range(3000):
     _, curloss = sess.run([train_step, loss])
     print(curloss)
 
-saver = tf.train.Saver()
 saver.save(sess, 'variable_save')
 
 for i in range(300):
-    my_cnn.load_data(input_reshape(my_data[i][0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
+    my_cnn.load_data(input_reshape(my_data[i+600][0]))
+    my_cnn.load_true_output_data(output_reshape(my_data[i+600][1]))
     result = my_cnn.calculate()
-    print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
+    print(str(output_to_num(sess.run(result)))+':'+str(my_data[i+600][1]))
 
 sess.close()

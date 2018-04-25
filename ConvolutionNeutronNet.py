@@ -49,7 +49,7 @@ class CNNNetLayer:
         self.output_data = tf.nn.max_pool(self.output_data, self.pooling_ksize, self.pooling_strides, self.pooling_padding)
 
     def convolution_calculate(self):
-        self.output_data = tf.nn.relu(tf.nn.conv2d(self.input_data, self.filter, self.strides, self.padding))
+        self.output_data = tf.nn.sigmoid(tf.nn.conv2d(self.input_data, self.filter, self.strides, self.padding))
 
     def calculate(self):
         self.convolution_calculate()
@@ -102,7 +102,7 @@ class CNN:
         return output_data
 
     def add_net_layer(self, net_layer):
-        self.net_layer_set.append(copy.deepcopy(net_layer))
+        self.net_layer_set.append(net_layer)
 
     def load_data(self, data):
         self.input_data = data
@@ -120,7 +120,7 @@ class CNN:
         self.true_output_data = data
 
     def get_error_benchmark(self):
-        return tf.reduce_mean(tf.square(tf.sub(self.true_output_data, self.output_data)))
+        return tf.reduce_sum(tf.square(tf.sub(self.true_output_data, self.output_data)))
 
 
 
