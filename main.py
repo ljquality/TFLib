@@ -57,8 +57,8 @@ my_cnn.add_net_layer(layer6)
 
 my_rd = rd.Data('./data/train_file.tfrecords')
 my_data = []
-for i in range(6000):
-    my_data.append(my_rd.read_a_record())
+
+my_data.append(my_rd.read_records())
 my_rd.close()
 
 

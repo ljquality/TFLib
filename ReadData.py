@@ -65,6 +65,8 @@ class Data:
         self.image = tf.to_float(self.image)
         self.image = tf.sub(tf.div(self.image, 255.), 0.5)
         #images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
+        self.images, self.labels = tf.train.shuffle_batch([self.image, self.label], batch_size=300, capacity=2 * 300,
+                                                min_after_dequeue=300)
         init_op = tf.initialize_all_variables()
         self.sess.run(init_op)
         self.coord = tf.train.Coordinator()
@@ -73,10 +75,17 @@ class Data:
     def read_a_record(self):
         return self.sess.run([self.image, self.label])
     
-    def read_records(self, n):
-        images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
+    def read_records(self):
+
+        return self.sess.run([self.images, self.labels])
     def close(self):
         self.coord.request_stop()
         self.coord.join(self.threads)
         self.sess.close()
+
+#d = Data('./data/train_file.tfrecords')
+#print d.read_records()[0]
+#d.close()
+
+
 

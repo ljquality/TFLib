@@ -5,14 +5,14 @@ import time
 
 def output_reshape(n):
     l = len(n)
-    output = [0.]*10*n
-    output = tf.reshape(output, [300, 1, 1, 10])
+    output = [0.]*10*l
     for i in range(l):
-        output[i][0][0][n[i]] = 1.
+        output[i*10 + n[i]] = 1.
+    output = tf.reshape(output, [l, 1, 1, 10])
     return output
 
 def input_reshape(mat):
-    l = len(n)
+    l = len(mat)
     return tf.reshape(mat, [l, 28, 28, 1])
 
 def output_to_num(output):
@@ -61,17 +61,16 @@ my_cnn.add_net_layer(layer5)
 my_cnn.add_net_layer(layer6)
 
 my_rd = rd.Data('./data/train_file.tfrecords')
-my_data = []
-for i in range(6000):
-    my_data.append(my_rd.read_a_record())
+
+my_data = my_rd.read_records()
 my_rd.close()
 
 
 print('read data over')
 loss = 0.
 #for i in range(300):
-my_cnn.load_data(input_reshape(my_data[0:300][0]))
-my_cnn.load_true_output_data(output_reshape(my_data[0:300][1]))
+my_cnn.load_data(input_reshape(my_data[0]))
+my_cnn.load_true_output_data(output_reshape(my_data[1]))
 my_cnn.calculate()
 loss = tf.add(loss, my_cnn.get_error_benchmark())
 loss = tf.div(loss, 300)
