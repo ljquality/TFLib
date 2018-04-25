@@ -65,8 +65,8 @@ class Data:
         self.image = tf.to_float(self.image)
         self.image = tf.sub(tf.div(self.image, 255.), 0.5)
         #images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
-        self.images, self.labels = tf.train.shuffle_batch([self.image, self.label], batch_size=3000, capacity=2 * 3000,
-                                                min_after_dequeue=3000)
+        self.images, self.labels = tf.train.shuffle_batch([self.image, self.label], batch_size=500, capacity=3 * 500,
+                                                min_after_dequeue=2 * 500)
         init_op = tf.initialize_all_variables()
         self.sess.run(init_op)
         self.coord = tf.train.Coordinator()

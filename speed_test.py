@@ -24,29 +24,29 @@ def output_to_num(output):
                 index[case] = i
         return index
 
-layer1 = cnn.CNNNetLayer([3000, 28, 28, 1])
+layer1 = cnn.CNNNetLayer([500, 28, 28, 1])
 layer1.set_filter([2, 2, 1, 6])
 
-layer2 = cnn.CNNNetLayer([3000, 14, 14, 6])
+layer2 = cnn.CNNNetLayer([500, 14, 14, 6])
 layer2.set_filter([2, 2, 6, 16])
 
 
-layer3 = cnn.CNNNetLayer([3000, 7, 7, 16])
+layer3 = cnn.CNNNetLayer([500, 7, 7, 16])
 layer3.set_filter([2, 2, 16, 20])
 
 
-layer4 = cnn.CNNNetLayer([3000, 4, 4, 20])
+layer4 = cnn.CNNNetLayer([500, 4, 4, 20])
 layer4.set_filter([3, 3, 20, 120])
 layer4.set_padding('VALID')
 layer4.set_if_pooling(False)
 
 
-layer5 = cnn.CNNNetLayer([3000, 1, 1, 120])
+layer5 = cnn.CNNNetLayer([500, 1, 1, 120])
 layer5.set_filter([1, 1, 120, 84])
 layer5.set_padding('VALID')
 layer5.set_if_pooling(False)
 
-layer6 = cnn.CNNNetLayer([3000, 1, 1, 84])
+layer6 = cnn.CNNNetLayer([500, 1, 1, 84])
 layer6.set_filter([1, 1, 84, 10])
 layer6.set_padding('VALID')
 layer6.set_if_pooling(False)
@@ -61,7 +61,6 @@ my_cnn.add_net_layer(layer5)
 my_cnn.add_net_layer(layer6)
 
 my_rd = rd.Data('./data/train_file.tfrecords')
-
 my_data = my_rd.read_records()
 my_rd.close()
 
@@ -73,25 +72,31 @@ my_cnn.load_data(input_reshape(my_data[0]))
 my_cnn.load_true_output_data(output_reshape(my_data[1]))
 my_cnn.calculate()
 loss = tf.add(loss, my_cnn.get_error_benchmark())
-loss = tf.div(loss, 300)
+loss = tf.div(loss, 500)
 
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
 sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
-for i in range(100):
-    pre = time.time()
+for i in range(10000):
+    #pre = time.time()
     _, curloss = sess.run([train_step, loss])
     print(curloss)
-    later = time.time()
-    print (later - pre)
+    #later = time.time()
+    #print (later - pre)
+    if i%100 ==0:
+        print i
 
+sum = 0
+for i in range(300):
+    my_cnn.load_data(input_reshape(my_data[i][0]))
+    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
+    result = my_cnn.calculate()
+    if output_to_num(sess.run(result)) == my_data[i][1]:
+        sum += 1
 
-#for i in range(300):
-#    my_cnn.load_data(input_reshape(my_data[i][0]))
-#    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
-#    result = my_cnn.calculate()
-#    print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
+print sum
+    #print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
 
 sess.close()
