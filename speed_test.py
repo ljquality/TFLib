@@ -80,23 +80,13 @@ sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
 for i in range(10000):
-    #pre = time.time()
+    pre = time.time()
     _, curloss = sess.run([train_step, loss])
     print(curloss)
-    #later = time.time()
-    #print (later - pre)
-    if i%100 ==0:
-        print i
+    later = time.time()
+    print (later - pre)
 
-sum = 0
-for i in range(300):
-    my_cnn.load_data(input_reshape(my_data[i][0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[i][1]))
-    result = my_cnn.calculate()
-    if output_to_num(sess.run(result)) == my_data[i][1]:
-        sum += 1
 
-print sum
-    #print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
+
 
 sess.close()
