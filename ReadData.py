@@ -54,19 +54,20 @@ class Data:
             'train/image': tf.FixedLenFeature([], tf.string),
             'train/label': tf.FixedLenFeature([], tf.int64)
         }
-        filename_queue = tf.train.string_input_producer([self.data_path], num_epochs=1)
+        filename_queue = tf.train.string_input_producer([self.data_path])
         reader = tf.TFRecordReader()
         _, serialized_example = reader.read(filename_queue)
 
         features = tf.parse_single_example(serialized_example, features=feature)
         image = tf.decode_raw(features['train/image'], tf.uint8)
         self.label = tf.cast(features['train/label'], tf.int32)
-        self.image = tf.reshape(image, [28, 28])
+        self.label = tf.constant([0]*self.label+[1]+[0]*(9-self.label))
+        self.image = tf.reshape(image, [28, 28, 1])
         self.image = tf.to_float(self.image)
         self.image = tf.sub(tf.div(self.image, 255.), 0.5)
         #images, labels = tf.train.shuffle_batch([image, label], batch_size=1, capacity=30, min_after_dequeue=10)
         self.images, self.labels = tf.train.batch([self.image, self.label], batch_size=500, capacity=3 * 500)
-
+        
         init_op = tf.initialize_all_variables()
         self.sess.run(init_op)
         self.coord = tf.train.Coordinator()
@@ -83,9 +84,9 @@ class Data:
         self.coord.join(self.threads)
         self.sess.close()
 
-#d = Data('./data/train_file.tfrecords')
-#print d.read_records()[0]
-#d.close()
+d = Data('./data/train_file.tfrecords')
+print d.read_records()[0]
+d.close()
 
 
 

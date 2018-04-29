@@ -61,7 +61,7 @@ my_cnn.add_net_layer(layer5)
 my_cnn.add_net_layer(layer6)
 
 my_rd = rd.Data('./data/train_file.tfrecords')
-for c in range(100):
+for c in range(3000):
     my_data = my_rd.read_records()
 
     print('read data over')
@@ -78,7 +78,7 @@ for c in range(100):
     sess = tf.Session()
     init = tf.initialize_all_variables()
     sess.run(init)
-    for i in range(300):
+    for i in range(10):
         #pre = time.time()
         _, curloss = sess.run([train_step, loss])
         print(curloss)
@@ -86,6 +86,8 @@ for c in range(100):
         #print (later - pre)
         if i%100==0:
             print(i)
+    print('c:')
+    print(c)
 
 
 saver = tf.train.Saver()
