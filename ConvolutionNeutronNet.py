@@ -110,6 +110,9 @@ class CNN:
     def load_data_copy(self, data):
         self.input_data = copy.deepcopy(data)
 
+    def set_input_placeholder_shape(self, shape, data_type=tf.float32):
+        self.input_data = tf.placeholder(data_type, shape)
+
     def get_output(self):
         return self.output_data
 
@@ -119,8 +122,20 @@ class CNN:
     def load_true_output_data(self, data):
         self.true_output_data = data
 
+    def set_true_output_data_placeholder_shape(self, shape, data_type=tf.float32):
+        self.true_output_data = tf.placeholder(data_type, shape)
+
     def get_error_benchmark(self):
-        return tf.reduce_sum(tf.square(tf.sub(self.true_output_data, self.output_data)))
+        return tf.reduce_sum(tf.square(tf.subtract(self.true_output_data, self.output_data)))
+
+    def train(self, sess, data, true_output, learn_rate=0.1, iteration=1):
+        self.calculate()
+        loss = self.get_error_benchmark()
+        loss = tf.div(loss, 500)
+        op = tf.train.GradientDescentOptimizer(learn_rate).minimize(loss)
+        for i in range(iteration):
+            _, ploss = sess.run([op, loss], feed_dict={self.input_data: data, self.true_output_data: true_output})
+            print(ploss)
 
 
 

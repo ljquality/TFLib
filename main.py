@@ -61,26 +61,30 @@ my_cnn.add_net_layer(layer5)
 my_cnn.add_net_layer(layer6)
 
 my_rd = rd.Data('./data/train_file.tfrecords')
+
+loss = 0.
+# for i in range(300):
+my_cnn.set_input_placeholder_shape([500, 28, 28, 1])
+my_cnn.set_true_output_data_placeholder_shape([500, 1, 1, 10])
+my_cnn.calculate()
+loss = tf.add(loss, my_cnn.get_error_benchmark())
+loss = tf.div(loss, 500)
+
+train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
+
+sess = tf.Session()
+init = tf.initialize_all_variables()
+sess.run(init)
+
 for c in range(3000):
+    print('read data begin')
     my_data = my_rd.read_records()
 
     print('read data over')
-    loss = 0.
-    #for i in range(300):
-    my_cnn.load_data(input_reshape(my_data[0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[1]))
-    my_cnn.calculate()
-    loss = tf.add(loss, my_cnn.get_error_benchmark())
-    loss = tf.div(loss, 500)
 
-    train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
-
-    sess = tf.Session()
-    init = tf.initialize_all_variables()
-    sess.run(init)
-    for i in range(10):
+    for i in range(1):
         #pre = time.time()
-        _, curloss = sess.run([train_step, loss])
+        _, curloss = sess.run([train_step, loss], feed_dict={my_cnn.input_data:my_data[0], my_cnn.true_output_data:my_data[1]})
         print(curloss)
         #later = time.time()
         #print (later - pre)
@@ -88,7 +92,6 @@ for c in range(3000):
             print(i)
     print('c:')
     print(c)
-
 
 saver = tf.train.Saver()
 saver.save(sess, 'variable_save')

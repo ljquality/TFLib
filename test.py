@@ -1,14 +1,9 @@
-import tensorflow as tf
-import ReadData
 
 
+import ReadData as rd
 
-t = [0]*10
-t[5] = 1
-sess = tf.Session()
-t = tf.reshape(t, [2,1,5])
-
-print sess.run(t)
-
-sess.close()
-
+test = rd.Data('./data/train_file.tfrecords')
+for i in range(1000):
+    my_data=test.read_records()
+    print(i)
+test.close()
