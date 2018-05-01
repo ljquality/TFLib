@@ -105,8 +105,6 @@ for i in range(20):
     #print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
     output = output_to_num(sess.run(result))
     mydata_num = output_to_num(my_data[1])
-    print(output)
-    print(mydata_num)
     for j in range(500):
         if output[j] != mydata_num[j]:
             sum += 1
