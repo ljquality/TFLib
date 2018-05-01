@@ -22,7 +22,7 @@ def output_to_num(output):
         for i in range(1, 10):
             if output[case][0][0][index[case]] < output[case][0][0][i]:
                 index[case] = i
-        return index
+    return index
 
 layer1 = cnn.CNNNetLayer([500, 28, 28, 1])
 layer1.set_filter([2, 2, 1, 6])
@@ -76,11 +76,10 @@ sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
 
-for c in range(3000):
-    print('read data begin')
+for c in range(10):
+
     my_data = my_rd.read_records()
 
-    print('read data over')
 
     for i in range(1):
         #pre = time.time()
@@ -94,20 +93,23 @@ for c in range(3000):
     print(c)
 
 saver = tf.train.Saver()
-saver.save(sess, 'variable_save')
+saver.save(sess, './variable_save')
 
 sum = 0
 for i in range(20):
     my_data = my_rd.read_records()
-    my_cnn.load_data(input_reshape(my_data[0]))
-    my_cnn.load_true_output_data(output_reshape(my_data[1]))
+    my_cnn.load_data(my_data[0])
+    my_cnn.load_true_output_data(my_data[1])
     result = my_cnn.calculate()
     #print(str(output_to_num(sess.run(result)))+':'+str(my_data[i][1]))
     output = output_to_num(sess.run(result))
+    mydata_num = output_to_num(my_data[1])
+    print(output)
+    print(mydata_num)
     for j in range(500):
-        if output[j] != my_data[1][j]:
+        if output[j] != mydata_num[j]:
             sum += 1
-    #dis = tf.reduce_sum(tf.square(tf.sub(output_to_num(sess.run(result)), my_data[1])))
+    #dis = tf.reduce_sum(tf.square(tf.subtract(sess.run(result), my_data[1])))
     #sum += dis
 print(sum)
 my_rd.close()
